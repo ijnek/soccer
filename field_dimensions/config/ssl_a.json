@@ -4,9 +4,9 @@ provider_node:
       length: 12.0
       width: 9.0
     goal:
-      depth: 0.6
+      depth: 0.18
       width: 1.8
-      height: 0.18
+      height: 0.16
     goalArea:
       length: 1.8
       width: 3.6
