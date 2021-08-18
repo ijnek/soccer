@@ -1,0 +1,21 @@
+provider_node:
+  ros__parameters:
+    field:
+      length: 14.0
+      width: 9.0
+    goal:
+      depth: 0.6
+      width: 2.6
+      height: 1.8
+    goalArea:
+      length: 1.0
+      width: 4.0
+    penaltyMark:
+      distance: 2.1
+    centerCircle:
+      diameter: 3.0
+    borderStrip:
+      width: 1.0
+    penaltyArea:
+      length: 3.0
+      width: 6.0

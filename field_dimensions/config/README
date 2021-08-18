@@ -1,0 +1,2 @@
+Dimensions files must be YAML, or a file format that can be parsed by a YAML parser,
+such as JSON
