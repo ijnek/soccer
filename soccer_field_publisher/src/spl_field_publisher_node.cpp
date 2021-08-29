@@ -57,6 +57,8 @@ public:
 
     float line_width = 0.05;
     float half_line_width = line_width / 2;
+    float goal_post_diameter = 0.100;
+    float goal_post_radius = goal_post_diameter/ 2;
 
     publisher_ = this->create_publisher<soccer_field_msgs::msg::Field>(
       "field", rclcpp::QoS(1).transient_local());
@@ -171,6 +173,28 @@ public:
       marking.end.y = -field_goalBoxAreaWidth / 2;
       marking.line_width = line_width;
       field.markings.lines.push_back(marking);
+    }
+
+    // Left goal top goal post
+    {
+      soccer_field_msgs::msg::GoalPost post;
+      post.type = post.TYPE_CYLINDER;
+      post.height = goal_height;
+      post.width = goal_post_diameter;
+      post.base.x = -field_length / 2 + half_line_width - goal_post_radius;
+      post.base.y = goal_innerWidth / 2 + goal_post_radius;
+      field.left_goal.top_post = post;
+    }
+
+    // Left goal bottom goal post
+    {
+      soccer_field_msgs::msg::GoalPost post;
+      post.type = post.TYPE_CYLINDER;
+      post.height = goal_height;
+      post.width = goal_post_diameter;
+      post.base.x = -field_length / 2 + half_line_width - goal_post_radius;
+      post.base.y = -goal_innerWidth / 2 - goal_post_radius;
+      field.left_goal.bottom_post = post;
     }
 
     publisher_->publish(field);
