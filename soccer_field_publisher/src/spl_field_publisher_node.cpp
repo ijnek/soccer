@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#define _USE_MATH_DEFINES
+ 
+#include <cmath>
 #include "rclcpp/rclcpp.hpp"
 #include "soccer_field_msgs/msg/field.hpp"
 
@@ -57,17 +60,80 @@ public:
 
     float line_width = 0.05;
     float half_line_width = line_width / 2;
-    float goal_post_diameter = 0.100;
-    float goal_post_radius = goal_post_diameter / 2;
-    float goal_crossbar_diameter = 0.100;
-    float goal_crossbar_radius = goal_crossbar_diameter / 2.0;
+    // float goal_post_diameter = 0.100;
+    // float goal_post_radius = goal_post_diameter / 2;
+    // float goal_crossbar_diameter = 0.100;
+    // float goal_crossbar_radius = goal_crossbar_diameter / 2.0;
 
     publisher_ = this->create_publisher<soccer_field_msgs::msg::Field>(
       "field", rclcpp::QoS(1).transient_local());
 
     soccer_field_msgs::msg::Field field;
 
-    // Vertical left goal line
+    // The coordinate system used for terms: North, South, East and West
+    // is defined as having the game controller at the South of the field.
+
+    // Field of play - North-West Corner Point
+    {
+      geometry_msgs::msg::Point32 point;
+      point.x = -field_length / 2 - field_borderStripWidth;
+      point.y = field_width / 2 + field_borderStripWidth;
+      point.z = 0;
+      field.field_of_play.points.push_back(point);
+    }
+
+    // Field of play - North-East Corner Point
+    {
+      geometry_msgs::msg::Point32 point;
+      point.x = field_length / 2 + field_borderStripWidth;
+      point.y = field_width / 2 + field_borderStripWidth;
+      point.z = 0;
+      field.field_of_play.points.push_back(point);
+    }
+
+    // Field of play - South-East Corner Point
+    {
+      geometry_msgs::msg::Point32 point;
+      point.x = field_length / 2 + field_borderStripWidth;
+      point.y = -field_width / 2 - field_borderStripWidth;
+      point.z = 0;
+      field.field_of_play.points.push_back(point);
+    }
+
+    // Field of play - South-West Corner Point
+    {
+      geometry_msgs::msg::Point32 point;
+      point.x = -field_length / 2 - field_borderStripWidth;
+      point.y = -field_width / 2 - field_borderStripWidth;
+      point.z = 0;
+      field.field_of_play.points.push_back(point);
+    }
+
+    // Center line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = 0;
+      marking.start.y = -field_width / 2 - half_line_width;
+      marking.end.x = 0;
+      marking.end.y = field_width / 2 + half_line_width;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // Center circle
+    {
+      soccer_field_msgs::msg::ArcMarking marking;
+      marking.center.x = 0;
+      marking.center.y = 0;
+      marking.center.z = 0;
+      marking.heading_start = 0;
+      marking.heading_end = 2 * M_PI;
+      marking.radius = field_centerCircleDiameter / 2;
+      marking.line_width = line_width;
+      field.markings.arcs.push_back(marking);
+    }
+
+    // West goal line
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2;
@@ -78,7 +144,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Vertical right goal line
+    // East goal line
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = field_length / 2;
@@ -89,7 +155,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Horizontal top touch line
+    // North touch line
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -100,7 +166,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Horizontal bottom touch line
+    // South touch line
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -111,7 +177,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Hotizontal left penalty box top line
+    // West Penalty Box - Horizontal Line (North)
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -122,18 +188,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Vertical left penalty box line
-    {
-      soccer_field_msgs::msg::LineMarking marking;
-      marking.start.x = -field_length / 2 + field_penaltyAreaLength;
-      marking.start.y = -field_penaltyAreaWidth / 2 - half_line_width;
-      marking.end.x = -field_length / 2 + field_penaltyAreaLength;
-      marking.end.y = field_penaltyAreaWidth / 2 + half_line_width;
-      marking.line_width = line_width;
-      field.markings.lines.push_back(marking);
-    }
-
-    // Hotizontal left penalty box bottom line
+    // West Penalty Box - Horizontal Line (South)
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -144,7 +199,51 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Hotizontal left goalBox box top line
+    // West Penalty Box - Vertical Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = -field_length / 2 + field_penaltyAreaLength;
+      marking.start.y = -field_penaltyAreaWidth / 2 - half_line_width;
+      marking.end.x = -field_length / 2 + field_penaltyAreaLength;
+      marking.end.y = field_penaltyAreaWidth / 2 + half_line_width;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Penalty Box - Horizontal Line (North)
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 + half_line_width;
+      marking.start.y = field_penaltyAreaWidth / 2;
+      marking.end.x = field_length / 2 - field_penaltyAreaLength - half_line_width;
+      marking.end.y = field_penaltyAreaWidth / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Penalty Box - Horizontal Line (South)
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 + half_line_width;
+      marking.start.y = -field_penaltyAreaWidth / 2;
+      marking.end.x = field_length / 2 - field_penaltyAreaLength - half_line_width;
+      marking.end.y = -field_penaltyAreaWidth / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Penalty Box - Vertical Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 - field_penaltyAreaLength;
+      marking.start.y = -field_penaltyAreaWidth / 2 - half_line_width;
+      marking.end.x = field_length / 2 - field_penaltyAreaLength;
+      marking.end.y = field_penaltyAreaWidth / 2 + half_line_width;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // West Goal Box - Horizontal Line (North)
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -155,18 +254,7 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Vertical left goalBox box line
-    {
-      soccer_field_msgs::msg::LineMarking marking;
-      marking.start.x = -field_length / 2 + field_goalBoxAreaLength;
-      marking.start.y = -field_goalBoxAreaWidth / 2 - half_line_width;
-      marking.end.x = -field_length / 2 + field_goalBoxAreaLength;
-      marking.end.y = field_goalBoxAreaWidth / 2 + half_line_width;
-      marking.line_width = line_width;
-      field.markings.lines.push_back(marking);
-    }
-
-    // Hotizontal left goalBox box bottom line
+    // West Goal Box - Hotizontal Line (South)
     {
       soccer_field_msgs::msg::LineMarking marking;
       marking.start.x = -field_length / 2 - half_line_width;
@@ -177,38 +265,92 @@ public:
       field.markings.lines.push_back(marking);
     }
 
-    // Left goal top goal post
+    // West Goal Box - Vertical Line
     {
-      soccer_field_msgs::msg::GoalPost post;
-      post.type = post.TYPE_CYLINDER;
-      post.height = goal_height;
-      post.width = goal_post_diameter;
-      post.base.x = -field_length / 2 + half_line_width - goal_post_radius;
-      post.base.y = goal_innerWidth / 2 + goal_post_radius;
-      field.left_goal.top_post = post;
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = -field_length / 2 + field_goalBoxAreaLength;
+      marking.start.y = -field_goalBoxAreaWidth / 2 - half_line_width;
+      marking.end.x = -field_length / 2 + field_goalBoxAreaLength;
+      marking.end.y = field_goalBoxAreaWidth / 2 + half_line_width;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
     }
 
-    // Left goal bottom goal post
+    // East Goal Box - Horizontal Line (North)
     {
-      soccer_field_msgs::msg::GoalPost post;
-      post.type = post.TYPE_CYLINDER;
-      post.height = goal_height;
-      post.width = goal_post_diameter;
-      post.base.x = -field_length / 2 + half_line_width - goal_post_radius;
-      post.base.y = -goal_innerWidth / 2 - goal_post_radius;
-      field.left_goal.bottom_post = post;
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 + half_line_width;
+      marking.start.y = field_goalBoxAreaWidth / 2;
+      marking.end.x = field_length / 2 - field_goalBoxAreaLength - half_line_width;
+      marking.end.y = field_goalBoxAreaWidth / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
     }
 
-    // Left goal cross bar
+    // East Goal Box - Hotizontal Line (South)
     {
-      soccer_field_msgs::msg::Crossbar crossbar;
-      crossbar.type = crossbar.TYPE_CYLINDER;
-      crossbar.center.x = -field_length / 2 + half_line_width - goal_crossbar_radius;
-      crossbar.center.y = 0;
-      crossbar.center.z = goal_height + goal_crossbar_radius;
-      crossbar.height = goal_crossbar_diameter;
-      crossbar.width = goal_innerWidth + 2 * goal_post_diameter;
-      field.left_goal.crossbar.push_back(crossbar);
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 + half_line_width;
+      marking.start.y = -field_goalBoxAreaWidth / 2;
+      marking.end.x = field_length / 2 - field_goalBoxAreaLength - half_line_width;
+      marking.end.y = -field_goalBoxAreaWidth / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Goal Box - Vertical Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 - field_goalBoxAreaLength;
+      marking.start.y = -field_goalBoxAreaWidth / 2 - half_line_width;
+      marking.end.x = field_length / 2 - field_goalBoxAreaLength;
+      marking.end.y = field_goalBoxAreaWidth / 2 + half_line_width;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // West Penalty Cross - Horizontal Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = -field_length / 2 + field_penaltyCrossDistance - field_penaltyCrossSize / 2;
+      marking.start.y = 0;
+      marking.end.x = -field_length / 2 + field_penaltyCrossDistance + field_penaltyCrossSize / 2;
+      marking.end.y = 0;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // West Penalty Cross - Vertical Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = -field_length / 2 + field_penaltyCrossDistance;
+      marking.start.y = -field_penaltyCrossSize / 2;
+      marking.end.x = -field_length / 2 + field_penaltyCrossDistance;
+      marking.end.y = field_penaltyCrossSize / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Penalty Cross - Horizontal Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 - field_penaltyCrossDistance - field_penaltyCrossSize / 2;
+      marking.start.y = 0;
+      marking.end.x = field_length / 2 - field_penaltyCrossDistance + field_penaltyCrossSize / 2;
+      marking.end.y = 0;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
+    }
+
+    // East Penalty Cross - Vertical Line
+    {
+      soccer_field_msgs::msg::LineMarking marking;
+      marking.start.x = field_length / 2 - field_penaltyCrossDistance;
+      marking.start.y = -field_penaltyCrossSize / 2;
+      marking.end.x = field_length / 2 - field_penaltyCrossDistance;
+      marking.end.y = field_penaltyCrossSize / 2;
+      marking.line_width = line_width;
+      field.markings.lines.push_back(marking);
     }
 
     publisher_->publish(field);
