@@ -1,0 +1,33 @@
+{
+  "MSLFieldPublisherNode": {
+    "ros__parameters": {
+      "field": {
+        "A": 22.0,
+        "B": 14.0,
+        "C": 6.9,
+        "D": 3.9,
+        "E": 2.25,
+        "F": 0.75,
+        "G": 0.75,
+        "H": 2.0,
+        "I": 3.6,
+        "J": 0.15,
+        "K": 0.125,
+        "L": 1.0,
+        "M": 1.0,
+        "N": 7.0,
+        "O": 1.0,
+        "P": 0.5,
+        "Q": 3.5
+      },
+      "goal": {
+        "height": 1.000,
+        "innerWidth": 2.400,
+        "depth": 0.500,
+        "crossbarWidth": 0.125,
+        "postWidth": 0.125,
+        "safetyZoneHeight": 0.300
+      }
+    }
+  }
+}

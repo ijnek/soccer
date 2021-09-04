@@ -16,9 +16,16 @@ ament_target_dependencies(spl_field_publisher_node
   rclcpp
   soccer_field_msgs)
 
+# Build msl_field_publisher_node
+add_executable(msl_field_publisher_node src/msl_field_publisher_node.cpp)
+ament_target_dependencies(msl_field_publisher_node
+  rclcpp
+  soccer_field_msgs)
+
 # Install
 install(TARGETS
   spl_field_publisher_node
+  msl_field_publisher_node
   DESTINATION lib/${PROJECT_NAME})
 
 # Install config
