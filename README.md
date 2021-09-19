@@ -6,3 +6,5 @@
 
 Package containing ROS2 packages related to Soccer.
 This package is aimed to be reusable across all RoboCup leagues.
+
+## **This package is under heavy development and not ready for usage!**
